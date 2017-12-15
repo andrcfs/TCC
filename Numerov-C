@@ -1,0 +1,25 @@
+//André Felipe Sottolichio
+//Algoritmo Numerov para a solução do oscilador quântico n=0, E=(0+1/2)
+#include <stdio.h>
+#include <math.h>
+int main()
+{
+    int i,j=0;
+    double df0,f0,y,f,f1,df,E=0.5,h,x,a,b,c;
+    FILE* fp;    fp=fopen("numerov.dat","w");
+    h=(double)1/10000;
+    f1=0;f0=0-h;//Valores iniciais
+    for(i=-50000;i<50000;i++)
+    {
+        y=(float)i/10000;
+        fprintf(fp,"%f %f\n",y,f1);
+        a=2*(1-5*h*h*(2*E-y*y)/12)*f1;
+        b=(1+h*h*(2*E-(y-h)*(y-h))/12)*f0;
+        c=1+h*h*(2*E-(y+h)*(y+h))/12;
+        f=(a-b)/c;
+        f0=f1;
+        f1=f;
+        j--;
+    }
+    fclose(fp);
+}
