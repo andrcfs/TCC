@@ -1,0 +1,62 @@
+//André Felipe Sottolichio
+//Código para oscilador relativístico G(r) com l=0.
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
+int main()
+{
+    int i,i2,j;
+    //Declaração de variáveis: X representa o ponto de encontro das funções, R é o limite de integração, de forma que H*R é igual ao número total de passos.
+    double E,H=10000,h=1/H,f1,f0,k=1,l=0,m=1,w=1,df,dg,a,b,c,r,x,v[2],P,X,R=4,autov,X=2;//H=10^4 ou 10^5
+    FILE* fp;
+    fp=fopen("auto.dat","w");
+    v[0]=100;v[1]=100; // Vetor que armazena diferença entre derivadas
+    for(j=150000;j<=700000;j++)
+    {
+        E=(float)j/100000;//Busca com 5 casas decimais para a energia
+        double* f=malloc(sizeof(double)*(int)(R*H)-1),*g=malloc(sizeof(double)*(int)round(R*H+2-(X*H)));
+        f1=0;f0=0-h;//Valores iniciais da função à esquerda
+        for(i=2;i<=(int)(R*H);i++)//i=2 para não haver divisão por zero
+        {
+            f[i]=f1;
+            r=(double)i/H;
+            a=2*(1-5*h*h*((E*E-m*m)-(m*(E+m)*w*w/2)*(r*r)-l*(l+1)/(r*r))/12)*f1;
+            b=(1+h*h*((E*E-m*m)-(m*(E+m)*w*w/2)*((r-h)*(r-h))-l*(l+1)/((r-h)*(r-h)))/12)*f0;
+            c=1+h*h*((E*E-m*m)-(m*(E+m)*w*w/2)*((r+h)*(r+h))-l*(l+1)/((r+h)*(r+h)))/12;
+            x=(a-b)/c;
+            if (i==1+(int)round(X*H))//Iteração para quando chega um ponto depois de r_match
+            {
+                i2=i;
+                break;
+            }
+            f0=f1;
+            f1=x;
+        }
+        f1=0+h,f0=0;//valores iniciais da função à direita
+        for(i=0;i<(int)(R*H+2-round(X*H));i++)
+        {
+            r=R-(double)i/H;//Integração de R até um ponto antes de r_match
+            a=2*(1-5*h*h*((E*E-m*m)-(m*(E+m)*w*w/2)*(r*r)-l*(l+1)/(r*r))/12)*f1;
+            b=(1+h*h*((E*E-m*m)-(m*(E+m)*w*w/2)*((r+h)*(r+h))-l*(l+1)/((r+h)*(r+h)))/12)*f0;
+            c=1+h*h*((E*E-m*m)-(m*(E+m)*w*w/2)*((r-h)*(r-h))-l*(l+1)/((r-h)*(r-h)))/12;
+            x=(a-b)/c;
+            g[i]=x;
+            f0=f1;
+            f1=x;
+        }
+        a=f[i2]*g[i-2]/f[i2-1]; b=f[i2-2]*g[i-2]/f[i2-1];//Escalonamento pontual
+        dg=(g[i-3]-g[i-1])/(2*h);
+        df=(a-b)/(2*h);
+        P=fabs(df-dg);//Diferença entre derivadas
+        //Comparação entre diferenças de derivadas para encontrar autovalores
+        if(P>v[1]&&v[1]<v[0])
+        {
+            fprintf(fp,"E:%f v:%f\n",autov,v[1]);
+        }
+        v[0]=v[1];
+        v[1]=P;
+        autov=E;
+        free(f);free(g);
+    }
+    fclose(fp)
+}
