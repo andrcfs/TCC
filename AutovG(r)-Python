@@ -1,0 +1,32 @@
+#André Felipe Sottolichio
+#Código para busca de autovalores da função G(r), l=0,1,2...
+import math as mt
+H=10000;h=1/H;f1=0;f0=0-h;f=[];g=[];o=[];n=[];v=[100.0,100.0];k=1;l=1;m=1;w=1
+auto=open('auto2.dat','w');X=2#Ponto de encontro r_match
+for j in range(150000,700000):
+    E=j/100000#Precisão do passo da energia
+    for i in range(2,int(4*H)):#Solução pela esquerda
+        r=i/H;        f.append(f1)
+        a=2*(1-5*h**2*((E**2-m**2)-(m*(E+m)*w**2/2)*r**2-l*(l+1)/r**2)/12)*f1
+        b=(1+h*h*((E**2-m**2)-(m*(E+m)*w**2/2)*(r-h)**2-l*(l+1)/(r-h)**2)/12)*f0			
+        c=1+h*h*((E**2-m**2)-(m*(E+m)*w**2/2)*(r+h)**2-l*(l+1)/(r+h)**2)/12
+        x=(a-b)/c         
+        if i==1+round(X*H):#Quebra no ponto de encontro
+            i2=i
+            break
+        f0=f1;        f1=x
+    f1=0+h;f0=0;#Valores iniciais para limite final de integração
+    for i in range(0,int(round(4*H-X*H))):#Solução pela direita
+        r=4-i/H;        g.append(x)
+        a=2*(1-5*h**2*((E**2-m**2)-(m*(E+m)*w**2/2)*r**2-l*(l+1)/r**2)/12)*f1
+        b=(1+h*h*((E**2-m**2)-(m*(E+m)*w**2/2)*(r+h)**2-l*(l+1)/(r+h)**2)/12)*f0			
+        c=1+h*h*((E**2-m**2)-(m*(E+m)*w**2/2)*(r-h)**2-l*(l+1)/(r-h)**2)/12
+        x=(a-b)/c
+        f0=f1;        f1=x
+    a=f[-1]*g[-2]/f[-2]; b=f[-3]*g[-2]/f[-2]#Escalonamento em volta de r_match
+    df1=(a-b)/(2*h);dg=(g[-3]-g[-1])/(2*h)#Derivadas
+    P=mt.fabs(df1-dg)#Diferença entre derivadas
+    if(P>v[1] and v[1]<v[0]):#Condição de autovalor
+        auto.write("%s " %E)
+        auto.write("%s\n" %v[1])
+    v[0]=v[1];    v[1]=P # atualização de dados
