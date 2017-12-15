@@ -1,0 +1,37 @@
+//André Felipe Sottolichio
+//Algoritmo Runge-Kutta de quarta ordem para a solução do oscilador quântico n=0, E=(0+1/2)
+#include <stdio.h>
+#include <math.h>
+int main()
+{
+	int i,j=0;
+	double df0=h,f0=0,y,f,df,E=0.5,h,k1,k2,k3,k4;
+	FILE* fp;	fp=fopen("rk4.dat","w");
+	h=(double)1/10000;
+	//RUNGE-KUTTA 4
+	for(i=-50000;i<50000;i++)
+	{
+        y=(float)i/10000;
+        fprintf(fp,"%f %f\n",y,f0);
+        //k1 = euler
+        k1=df0*h;
+        //k2 = passo calculado com derivada no ponto médio
+        df=df0+((y+h/2)*(y+h/2)-2*E)*f0*h;
+        k2=df*h;
+        //k3 = passo calculado com derivada no ponto médio através de k2
+        f=f0+k2/2;
+        df=df0+((y+h/2)*(y+h/2)-2*E)*f*h;
+        k3=df*h;
+        //k4 = derivada no ponto final calculado com k3
+        f=f0+k3;
+        df=df0+((y+h)*(y+h)-2*E)*f*h;
+        k4=df*h;
+        //SOMA TOTAL
+        f=f0+(k1/6)+(k2/2)+(k3/6)+(k4/6);
+        //ATUALIZACAO DE VALORES
+        df=df0+(y*y-2*E)*f0*h;
+        f0=f;
+        df0=df;
+	}
+	fclose(fp);
+}
